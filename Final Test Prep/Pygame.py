@@ -3,7 +3,7 @@ import random
 import time
 from datetime import datetime
 
-
+#이미지 관리 클래스 정의
 class imageManager:
 
     def __init__(self):
@@ -25,7 +25,7 @@ class imageManager:
     def show(self):
         screen.blit(self.image, (self.x, self.y))
 
-
+#충돌 함수 정의
 def crash(a, b):
     if (a.x - b.sx <= b.x) and (b.x <= a.x + a.sx):
         if (a.y - b.sy <= b.y) and (b.y <= a.y + a.sy):
@@ -35,17 +35,19 @@ def crash(a, b):
     else:
         return False
 
-
+# 게임 초기화
 pygame.init()
 
-size = [500, 750]
+# 게임창 옵션 설정
+size = [400, 900]
 screen = pygame.display.set_mode(size)
 
 title = "미사일 게임"
 
 pygame.display.set_caption(title)
 
-clock = pygame.time.Clock()
+# 게임 내 필요한 설정
+clock = pygame.time.Clock() #FPS를 위한 변수
 
 ss = imageManager()
 ss.put_img("jeon3.png")
@@ -70,6 +72,7 @@ m_list = []
 
 start_time = datetime.now()
 
+# 게임 시작 대기 화면
 SB = 0
 while SB == 0:
     clock.tick(60)
@@ -79,33 +82,24 @@ while SB == 0:
                 SB = 1
     screen.fill(black)
     font = pygame.font.SysFont("arial", 30, True, True)
-    text_kill = font.render("press the space bar", True, (255, 255, 255))
+    text_kill = font.render("스페이스키를 눌러주세요!", True, (255, 255, 255))
     screen.blit(text_kill, (90, round(size[1] / 2 - 50)))
     pygame.display.flip()
 
+# 메인 이벤트
 SB = 0
 k = 0
 
-while SB == 1:
-    clock.tick(60)
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            SB = 2
-
-    if score >= 500:
-        SB = 0
-        GO = 1
-
 while SB == 0:
+    # FPS 설정
+    clock.tick(60) # 1초에 60번 while문 반복
 
-    clock.tick(60)
-
+    # 각종 입력 감지
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if event.type == pygame.QUIT: # 게임 종료
             SB = 1
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
+        if event.type == pygame.KEYDOWN: # 키가 눌렸을 때
+            if event.key == pygame.K_LEFT: # 키가 왼쪽 키이면
                 left_go = True
             if event.key == pygame.K_RIGHT:
                 right_go = True
@@ -121,6 +115,7 @@ while SB == 0:
             if event.key == pygame.K_SPACE:
                 space_go = False
 
+    # 입력, 시간에 따른 변화
     now_time = datetime.now()
     delta_time = round((now_time - start_time).total_seconds())
 
@@ -133,7 +128,8 @@ while SB == 0:
         ss.x += ss.move
         if ss.x >= size[0] - ss.sx:
             ss.x = size[0] - ss.sx
-
+            
+    # 미사일 생성하기
     if space_go == True and k % 6 == 0:
         mm = imageManager()
         mm.put_img("jeon4.png")
@@ -144,7 +140,8 @@ while SB == 0:
         m_list.append(mm)
 
     k += 1
-
+    
+    # 화면에서 나간 미사일 지우기
     d_list = []
     for i in range(len(m_list)):
         m = m_list[i]
@@ -155,11 +152,12 @@ while SB == 0:
     for d in d_list:
         del m_list[d]
 
+    # 외계인 등장
     if random.random() > 0.98:
         aa = imageManager()
         aa.put_img("jeon1.png")
         aa.change_size(50, 50)
-        aa.x = random.randrange(0, size[0] - aa.sx - round(ss.sx / 2))
+        aa.x = random.randrange(0, size[0] - aa.sx - round(ss.sx / 2)) # 외계인의 크기만큼 빼준다
         aa.y = 10
         aa.move = 1
         a_list.append(aa)
@@ -169,13 +167,14 @@ while SB == 0:
         a.y += a.move
         if a.y >= size[1]:
             d_list.append(i)
-            loss += 1
+            loss += 1 # 외계인이 지나가면 loss + 1
             score -= 10
 
     dd_list = []
     for d in dd_list:
         del a_list[d]
 
+    # 외계인 vs 미사일 충돌하는 경우 제거
     dm_list = []
     da_list = []
 
@@ -187,23 +186,25 @@ while SB == 0:
                 dm_list.append(i)
                 da_list.append(j)
 
-    dm_list = list(set(dm_list))
-    da_list = list(set(da_list))
+    dm_list = list(set(dm_list)) # 중복 제거
+    da_list = list(set(da_list)) # 중복 제거
 
     for d in dm_list:
         del m_list[d]
 
     for a in da_list:
         del a_list[a]
-        kill += 1
+        kill += 1 # 외계인이 사라지면 kill + 1
         score += 20
 
+    # 비행기 vs 외계인 충돌하면 죽음
     for i in range(len(a_list)):
         a = a_list[i]
         if crash(a, ss) == True:
             SB = 1
             GO = 1
-
+            
+    # 그리기 
     screen.fill(black)
     ss.show()
     for m in m_list:
@@ -211,6 +212,7 @@ while SB == 0:
     for a in a_list:
         a.show()
 
+    # 텍스트 그리기
     font = pygame.font.SysFont("arial", 10, True, True)
     text_kill = font.render(
         "kill : {} loss : {} score : {}".format(kill, loss, score), True,
@@ -221,8 +223,10 @@ while SB == 0:
                             (255, 255, 255))
     screen.blit(text_time, (size[0] - 100, 5))
 
+    # 업데이트
     pygame.display.flip()
 
+# 게임 종료
 while GO == 1:
     clock.tick(60)
     for event in pygame.event.get():
@@ -230,10 +234,7 @@ while GO == 1:
             GO = 0
     screen.fill(black)
     font = pygame.font.SysFont("arial", 50, True, True)
-    if score >= 500:
-        text = font.render("VICTORY!", True, (0, 255, 0))
-    else:
-        text = font.render("GAME OVER!", True, (255, 0, 0))
+    text = font.render("GAME OVER!", True, (255, 0, 0))
     screen.blit(text, (90, round(size[1] / 2 - 50)))
     pygame.display.flip()
 
