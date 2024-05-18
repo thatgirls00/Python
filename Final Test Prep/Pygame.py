@@ -3,6 +3,7 @@ import random
 import time
 from datetime import datetime
 
+
 #이미지 관리 클래스 정의
 class imageManager:
 
@@ -25,6 +26,7 @@ class imageManager:
     def show(self):
         screen.blit(self.image, (self.x, self.y))
 
+
 #충돌 함수 정의
 def crash(a, b):
     if (a.x - b.sx <= b.x) and (b.x <= a.x + a.sx):
@@ -34,6 +36,7 @@ def crash(a, b):
             return False
     else:
         return False
+
 
 # 게임 초기화
 pygame.init()
@@ -47,7 +50,7 @@ title = "미사일 게임"
 pygame.display.set_caption(title)
 
 # 게임 내 필요한 설정
-clock = pygame.time.Clock() #FPS를 위한 변수
+clock = pygame.time.Clock()  #FPS를 위한 변수
 
 ss = imageManager()
 ss.put_img("jeon3.png")
@@ -92,14 +95,14 @@ k = 0
 
 while SB == 0:
     # FPS 설정
-    clock.tick(60) # 1초에 60번 while문 반복
+    clock.tick(60)  # 1초에 60번 while문 반복
 
     # 각종 입력 감지
     for event in pygame.event.get():
-        if event.type == pygame.QUIT: # 게임 종료
+        if event.type == pygame.QUIT:  # 게임 종료
             SB = 1
-        if event.type == pygame.KEYDOWN: # 키가 눌렸을 때
-            if event.key == pygame.K_LEFT: # 키가 왼쪽 키이면
+        if event.type == pygame.KEYDOWN:  # 키가 눌렸을 때
+            if event.key == pygame.K_LEFT:  # 키가 왼쪽 키이면
                 left_go = True
             if event.key == pygame.K_RIGHT:
                 right_go = True
@@ -128,7 +131,7 @@ while SB == 0:
         ss.x += ss.move
         if ss.x >= size[0] - ss.sx:
             ss.x = size[0] - ss.sx
-            
+
     # 미사일 생성하기
     if space_go == True and k % 6 == 0:
         mm = imageManager()
@@ -140,7 +143,7 @@ while SB == 0:
         m_list.append(mm)
 
     k += 1
-    
+
     # 화면에서 나간 미사일 지우기
     d_list = []
     for i in range(len(m_list)):
@@ -157,7 +160,8 @@ while SB == 0:
         aa = imageManager()
         aa.put_img("jeon1.png")
         aa.change_size(50, 50)
-        aa.x = random.randrange(0, size[0] - aa.sx - round(ss.sx / 2)) # 외계인의 크기만큼 빼준다
+        aa.x = random.randrange(0, size[0] - aa.sx -
+                                round(ss.sx / 2))  # 외계인의 크기만큼 빼준다
         aa.y = 10
         aa.move = 1
         a_list.append(aa)
@@ -167,7 +171,7 @@ while SB == 0:
         a.y += a.move
         if a.y >= size[1]:
             d_list.append(i)
-            loss += 1 # 외계인이 지나가면 loss + 1
+            loss += 1  # 외계인이 지나가면 loss + 1
             score -= 10
 
     dd_list = []
@@ -186,15 +190,15 @@ while SB == 0:
                 dm_list.append(i)
                 da_list.append(j)
 
-    dm_list = list(set(dm_list)) # 중복 제거
-    da_list = list(set(da_list)) # 중복 제거
+    dm_list = list(set(dm_list))  # 중복 제거
+    da_list = list(set(da_list))  # 중복 제거
 
     for d in dm_list:
         del m_list[d]
 
     for a in da_list:
         del a_list[a]
-        kill += 1 # 외계인이 사라지면 kill + 1
+        kill += 1  # 외계인이 사라지면 kill + 1
         score += 20
 
     # 비행기 vs 외계인 충돌하면 죽음
@@ -203,8 +207,13 @@ while SB == 0:
         if crash(a, ss) == True:
             SB = 1
             GO = 1
-            
-    # 그리기 
+
+    if score > 50:
+        GO = 1
+        victory = True  # 승리 상태를 나타내는 변수 추가
+        break  # 점수가 50점을 넘으면 게임 루프를 종료합니다.
+
+    # 그리기
     screen.fill(black)
     ss.show()
     for m in m_list:
@@ -233,8 +242,15 @@ while GO == 1:
         if event.type == pygame.QUIT:
             GO = 0
     screen.fill(black)
+
+    # 승리 메시지 또는 게임 오버 메시지를 조건에 따라 표시
+    if 'victory' in locals() and victory:  # 승리했을 경우
+        message = "VICTORY!"
+    else:  # 게임 오버인 경우
+        message = "GAME OVER!"
+
     font = pygame.font.SysFont("arial", 50, True, True)
-    text = font.render("GAME OVER!", True, (255, 0, 0))
+    text = font.render(message, True, (255, 0, 0))
     screen.blit(text, (90, round(size[1] / 2 - 50)))
     pygame.display.flip()
 
