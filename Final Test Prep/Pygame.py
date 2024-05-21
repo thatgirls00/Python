@@ -206,7 +206,7 @@ while SB == 0:
             SB = 1
             GO = 1
 
-    if kill > 10:
+    if kill > 30:
         GO = 1
         victory = True  # 승리 상태를 나타내는 변수 추가
         break  # 점수가 50점을 넘으면 게임 루프를 종료합니다.
