@@ -66,7 +66,6 @@ right_go = False
 space_go = False
 
 GO = 0
-score = 0
 kill = 0
 loss = 0
 
@@ -172,7 +171,7 @@ while SB == 0:
         if a.y >= size[1]:
             d_list.append(i)
             loss += 1  # 외계인이 지나가면 loss + 1
-            score -= 10
+            kill -= 3
 
     dd_list = []
     for d in dd_list:
@@ -199,7 +198,6 @@ while SB == 0:
     for a in da_list:
         del a_list[a]
         kill += 1  # 외계인이 사라지면 kill + 1
-        score += 20
 
     # 비행기 vs 외계인 충돌하면 죽음
     for i in range(len(a_list)):
@@ -208,7 +206,7 @@ while SB == 0:
             SB = 1
             GO = 1
 
-    if score > 50:
+    if kill > 10:
         GO = 1
         victory = True  # 승리 상태를 나타내는 변수 추가
         break  # 점수가 50점을 넘으면 게임 루프를 종료합니다.
@@ -224,7 +222,7 @@ while SB == 0:
     # 텍스트 그리기
     font = pygame.font.SysFont("arial", 10, True, True)
     text_kill = font.render(
-        "kill : {} loss : {} score : {}".format(kill, loss, score), True,
+        "kill : {} loss : {}".format(kill, loss), True,
         (255, 255, 0))
     screen.blit(text_kill, (10, 5))
 
